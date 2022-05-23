@@ -52,7 +52,7 @@ void usage()                        // display the usage
         "      Param: -alg 4 -n -m -qn -d -K -l -b -is -us -qs -ts -of\n"
         "\n"
         "-------------------------------------------------------------------\n"
-        " Anonymous Authors                                                 \n"
+        " Anonymous Author(s)                                               \n"
         "-------------------------------------------------------------------\n"
         "\n\n\n");
 }
