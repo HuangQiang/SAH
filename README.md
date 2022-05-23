@@ -1,10 +1,10 @@
 # SAH: Shifting-aware Asymmetric Hashing for Reverse k-Maximum Inner Product Search
 
-In this github, we implement **SAH** for Reverse k-Maximum Inner Product Search (RkMIPS). We select a state-of-the-art MIPS method [**H2-ALSH**](https://github.com/HuangQiang/H2_ALSH) and the only known RkMIPS method [**Simpfer**](https://github.com/amgt-d1/Simpfer) as baselines for evaluations. Moreover, we incorporate the RkMIPS optimizations of Simpfer into H2-ALSH and SA-ALSH as two new baselines **H2-Simpfer** and **SA-Simpfer**, respectively, to make a more systematic comparison.
+In this repository, we implement **SAH** for Reverse k-Maximum Inner Product Search (RkMIPS). We select a state-of-the-art MIPS method [**H2-ALSH**](https://github.com/HuangQiang/H2_ALSH) and the only known RkMIPS method [**Simpfer**](https://github.com/amgt-d1/Simpfer) as baselines for evaluations. Moreover, we incorporate the RkMIPS optimizations of Simpfer into H2-ALSH and SA-ALSH as two new baselines **H2-Simpfer** and **SA-Simpfer**, respectively, to make a more systematic comparison.
 
 ## Datasets
 
-We use five real-world datasets in our experiments, i.e., Amazon-Auto, Amazon-CDs, MovieLens, Music100, Netflix. For the datasets Amazon-Auto, Amazon-CDs, MovieLens, and Netflix, we first retrieve their sparse user-item rating matrix R, where R(i,j) is the rating of user i for item j. Then, we set up the latent dimensionality d = 100 and apply the [Non-Negative Matrix Factorization (NMF)](https://pytorch-nmf.readthedocs.io/en/stable/) on R to obtain their latent user and item matrices. For the dataset [Music100](https://github.com/stanis-morozov/ip-nsw), as the authors only provided a single dense matrix (not rating matrix) as the dataset, we use it as both user and item matrices. Finally, for each dataset, we randomly select 100 item vectors from the item matrix and use them as the query set. The datasets can be download [here](https://drive.google.com/drive/folders/16tlJl4IE0Tcd4Dz9PXkhLt14MFhG67Zx?usp=sharing). The details of datasets are depicted in the following table.
+We use five real-world datasets in our experiments, i.e., Amazon-Auto, Amazon-CDs, MovieLens, Music100, and Netflix. For the datasets Amazon-Auto, Amazon-CDs, MovieLens, and Netflix, we first retrieve their sparse user-item rating matrix R, where R(i,j) is the rating of user i for item j. Then, we set up the latent dimensionality d = 100 and apply the [Non-Negative Matrix Factorization (NMF)](https://pytorch-nmf.readthedocs.io/en/stable/) on R to obtain their latent user and item matrices. For the dataset [Music100](https://github.com/stanis-morozov/ip-nsw), as the authors only provided a single dense matrix (not rating matrix), we use it as both user and item matrices. Finally, for each dataset, we randomly select 100 item vectors from the item matrix and use them as the query set. The datasets can be download [here](https://drive.google.com/drive/folders/16tlJl4IE0Tcd4Dz9PXkhLt14MFhG67Zx?usp=sharing). The details of datasets are depicted in the following table.
 
 | Datasets   | # Items     | # Users   | # Queries | # Dim | Itemset Size | Userset Size |
 | ----------- | ----------- | --------- | --------- | ----- | ------------ | ------------ |
@@ -39,7 +39,7 @@ make -j
 
 ## Experiments
 
-We provide bash scripts to run all experiments. Once you have downloaded the datasets and completed the compilation, you can reproduce the experiments of **H2-ALSH**, **H2-Simpfer**, **SA-Simpfer**, and **SAH** by simply running the following commands:
+We provide the bash scripts to run all experiments. Once you have downloaded the datasets and completed the compilation, you can reproduce the experiments of **H2-ALSH**, **H2-Simpfer**, **SA-Simpfer**, and **SAH** by simply running the following commands:
 
 ```bash
 cd methods/
@@ -55,6 +55,6 @@ bash run.sh
 
 ## Visualization
 
-Finally, we privode `python` scripts for visualization. These scripts require `python 3.7` (or higher versions) with **numpy, scipy, and matplotlib**. If not, you might need to use `anaconda` to create a new virtual environment and use `pip` to install those packages. After you have completed all experiments, you can plot all figures appeared in our submission (including the supplementary) with the python scripts in `plot/`.
+Finally, we privode `python` scripts for visualization. These scripts require `python 3.8` (or higher versions) with **numpy, scipy, and matplotlib**. If not, you might need to use `anaconda` to create a new virtual environment and use `pip` to install those packages. After you have completed all experiments, you can plot all figures appeared in our submission (including the supplementary) with the python scripts in `plot/`.
 
 Thank you for your interest!
