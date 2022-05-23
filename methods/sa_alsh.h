@@ -14,7 +14,7 @@
 namespace ip {
 
 // -----------------------------------------------------------------------------
-//  SA_Simpfer: a data structure designed for performing reverse k-mips
+//  SA_ALSH: a data structure designed for performing reverse k-mips
 //  
 //  Pre-processing Phase:
 //  1. compute l2-norms & sort item_set in descending order of l2-norms
@@ -28,9 +28,9 @@ namespace ip {
 //  2. for each user, check item_set with blocks for batch pruning
 //  3. for each block in item_set, use srp-lsh/qalsh (with sa-trans) for speedup
 // -----------------------------------------------------------------------------
-class SA_Simpfer {
+class SA_ALSH {
 public:
-    SA_Simpfer(                     // constructor
+    SA_ALSH(                        // constructor
         int   n,                        // item cardinality
         int   m,                        // user cardinality
         int   d,                        // dimensionality
@@ -41,7 +41,7 @@ public:
         const float *user_set);         // user set
     
     // -------------------------------------------------------------------------
-    ~SA_Simpfer();                  // destructor
+    ~SA_ALSH();                     // destructor
     
     // -------------------------------------------------------------------------
     void display();                 // display parameters

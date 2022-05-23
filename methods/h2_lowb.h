@@ -10,38 +10,35 @@
 #include "util.h"
 #include "pri_queue.h"
 #include "block.h"
-#include "cone_tree.h"
 
 namespace ip {
 
 // -----------------------------------------------------------------------------
-//  SAH: a data structure designed for performing reverse k-mips
+//  H2_LOWB: a data structure adapted for performing reverse k-mips
 //  
 //  Pre-processing Phase:
 //  1. compute l2-norms & sort item_set in descending order of l2-norms
-//  2. build blocks (with cone-tree) for user_set for batch pruning
-//  3. build blocks for the rest item_set (with sa-trans) for batch pruning
+//  2. compute l2-norms for user_set
+//  3. determine k_max approximate mips results as lower bounds for user_set
+//  4. build blocks for the rest item_set (with h2-trans) for batch pruning
 //  
 //  Online Query Phase:
-//  1. check user_set with blocks (with cone-tree) for batch pruning
-//  2. for each user, check item_set with blocks for batch pruning
-//  3. for each block in item_set, use srp-lsh (with sa-trans) for speedup
+//  1. for each user, check item_set with blocks for batch pruning
+//  2. for each block in item_set, use qalsh (with h2-trans) for speedup
 // -----------------------------------------------------------------------------
-class SAH {
+class H2_LOWB {
 public:
-    SAH(                            // constructor
+    H2_LOWB(                        // constructor
         int   n,                        // item cardinality
         int   m,                        // user cardinality
         int   d,                        // dimensionality
         int   k_max,                    // max k value
-        int   K,                        // # hash tables for SRP-LSH
-        int   leaf,                     // leaf size of cone-tree
         float b,                        // interval ratio for blocking items
         const float *item_set,          // item set
         const float *user_set);         // user set
     
     // -------------------------------------------------------------------------
-    ~SAH();                         // destructor
+    ~H2_LOWB();                     // destructor
     
     // -------------------------------------------------------------------------
     void display();                 // display parameters
@@ -57,11 +54,11 @@ public:
         u64 ret = 0;
         ret += sizeof(*this);
         ret += (sizeof(int)+sizeof(float))*n_; // item_index_ & item_norms_
-        for (auto hash : hashs_) {  // hashs_
+        ret += sizeof(float)*m_;        // user_norms_
+        ret += sizeof(float)*m_*k_max_; // lower_bounds_
+        for (auto hash : hashs_) {      // hashs_
             ret += hash->get_estimated_memory();
         }
-        ret += tree_->get_estimated_memory();
-        
         return ret;
     }
     
@@ -70,45 +67,34 @@ protected:
     int   m_;                       // user cardinality
     int   d_;                       // dimensionality
     int   k_max_;                   // max k value
-    int   K_;                       // # hash tables for SRP-LSH
-    int   leaf_;                    // leaf size of cone-tree
     float b_;                       // interval ratio for blocking items
     
-    float *item_set_;               // sorted item_set
+    float *item_set_;               // sorted item vectors
     float *item_norms_;             // sorted item l2-norms
     int   *item_index_;             // sorted item index
     std::vector<Item_Block*> hashs_;// lsh index for item blocks
     
-    Cone_Tree *tree_;               // cone-tree
-    std::vector<Cone_Node*> blocks_;// user blocks
+    const float *user_set_;         // user vectors
+    float *user_norms_;             // user l2-norms
+    float *lower_bounds_;           // lower bounds for user vectors
     
     // -------------------------------------------------------------------------
     void compute_norm_and_sort(     // compute norm and sort data (descending)
-        const float *item_set);         // item_set
+        int   n,                        // input set cardinality
+        const float *input_set,         // input set
+        int   *data_index,              // index of sorted data (return)
+        float *data_norm,               // l2-norm of sorted data (return)
+        float *data_set);               // sorted data (return)
     
     // -------------------------------------------------------------------------
-    void blocking_user_set(         // build blocks (with cone-tree) for user_set
-        int   n0,                       // the first n0 elements in item_set
-        const float *user_set);         // user_set
-        
-    // -------------------------------------------------------------------------
-    void lower_bounds_computation(  // compute lower bounds for users
-        int   m,                        // number of users
-        int   n0,                       // the first n0 elements in item_set
-        const float *user_set,          // users
-        float *lower_bounds);           // lower bounds (return)
+    void lower_bounds_computation(  // compute lower bounds for user_set
+        int n0);                        // the first n0 elements in item_set
     
     // -------------------------------------------------------------------------
     void update_lower_bound(        // update lower bound
         int   k,                        // top-k value
         MaxK_Array *arr,                // top-k array
         float *lower_bound);            // lower bound (return)
-        
-    // -------------------------------------------------------------------------
-    void node_lower_bounds_computation(// compute lower bound for a node
-        int   m,                        // number of users
-        const float *lower_bounds,      // lower bounds
-        float *node_lower_bounds);      // node lower bounds (return)
     
     // -------------------------------------------------------------------------
     void blocking_item_set(         // split the rest item_set into blocks
@@ -127,6 +113,7 @@ protected:
     int kmips(                      // k-mips
         int   k,                        // top-k value
         float uq_ip,                    // inner product of user and query
+        float user_norm,                // l2-norm of input user
         const float *user,              // input user
         MaxK_Array  *arr);              // top-k mips array (return)
 };
