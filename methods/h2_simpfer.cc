@@ -1,10 +1,10 @@
 
-#include "h2_lowb.h"
+#include "h2_simpfer.h"
 
 namespace ip {
 
 // -----------------------------------------------------------------------------
-H2_LOWB::H2_LOWB(                   // constructor
+H2_Simpfer::H2_Simpfer(             // constructor
     int   n,                            // item cardinality
     int   m,                            // user cardinality
     int   d,                            // dimensionality
@@ -12,7 +12,7 @@ H2_LOWB::H2_LOWB(                   // constructor
     float b,                            // interval ratio for blocking items
     const float *item_set,              // item set
     const float *user_set)              // user set
-    : n_(n), m_(m), d_(d), k_max_(k_max), b_(b), user_set_(user_set)
+    : n_(n), m_(m), d_(d), k_max_(k_max), b_(b)
 {
     gettimeofday(&g_start_time, nullptr);
     
@@ -22,12 +22,11 @@ H2_LOWB::H2_LOWB(                   // constructor
     item_set_   = new float[(u64) n*d];
     compute_norm_and_sort(n, item_set, item_index_, item_norms_, item_set_);
     
-    // 2. compute l2-norms for user_set
+    // 2. compute l2-norms & sort user_set in descending order of l2-norms
+    user_index_ = new int[m];
     user_norms_ = new float[m];
-    for (int i = 0; i < m; ++i) {
-        const float *user = user_set + (u64) i*d;
-        user_norms_[i] = sqrt(calc_inner_product(d, user, user));
-    }
+    user_set_   = new float[(u64) m*d];
+    compute_norm_and_sort(m, user_set, user_index_, user_norms_, user_set_);
     
     // 3. determine k_max approximate mips results as lower bounds for user_set
     int n0 = k_max*COEFF; // only consider the first n0 elements in item_set
@@ -36,7 +35,10 @@ H2_LOWB::H2_LOWB(                   // constructor
     lower_bounds_ = new float[(u64) m*k_max];
     lower_bounds_computation(n0);
     
-    // 4. build blocks for the rest item_set (with h2-trans) for batch pruning
+    // 4. build blocks for user_set for batch pruning
+    blocking_user_set();
+    
+    // 5. build blocks for the rest item_set (with h2-trans) for batch pruning
     blocking_item_set(n-n0, item_norms_+n0, item_set_+(u64)n0*d);
     
     // get the pre-processing time and estimated memory
@@ -47,7 +49,7 @@ H2_LOWB::H2_LOWB(                   // constructor
 }
 
 // -----------------------------------------------------------------------------
-void H2_LOWB::compute_norm_and_sort(// compute l2-norm and sort (descending)
+void H2_Simpfer::compute_norm_and_sort(// compute l2-norm and sort (descending)
     int   n,                            // input set cardinality
     const float *input_set,             // input set
     int   *data_index,                  // index of sorted data (return)
@@ -76,7 +78,7 @@ void H2_LOWB::compute_norm_and_sort(// compute l2-norm and sort (descending)
 }
 
 // -----------------------------------------------------------------------------
-void H2_LOWB::lower_bounds_computation(// compute lower bounds for user_set
+void H2_Simpfer::lower_bounds_computation(// compute lower bounds for user_set
     int n0)                             // the first n0 elements in item_set
 {
     MaxK_Array *arr = new MaxK_Array(k_max_);
@@ -103,7 +105,7 @@ void H2_LOWB::lower_bounds_computation(// compute lower bounds for user_set
 }
 
 // -----------------------------------------------------------------------------
-void H2_LOWB::update_lower_bound(   // update lower bound
+void H2_Simpfer::update_lower_bound(// update lower bound
     int   k,                            // top-k value
     MaxK_Array *arr,                    // top-k array
     float *lower_bound)                 // lower bound (return)
@@ -113,7 +115,28 @@ void H2_LOWB::update_lower_bound(   // update lower bound
 }
 
 // -----------------------------------------------------------------------------
-void H2_LOWB::blocking_item_set(    // split the rest item_set into blocks
+void H2_Simpfer::blocking_user_set()// split the user_set into blocks
+{
+    // clear blocks & calc block size
+    blocks_.clear();
+    block_size_ = (int) ceil(log2((double)m_)*20.0);
+    if (block_size_ > m_) block_size_ = m_;
+    
+    // split the user_set into blocks
+    int block_size = block_size_;
+    for (int i = 0; i < m_; i += block_size) {
+        // get the block size for this block
+        if (i + block_size > m_) block_size = m_ - i;
+        
+        // add a new block
+        User_Block *block = new User_Block(block_size, k_max_, user_index_+i,
+            user_norms_+i, user_set_+(u64)i*d_, lower_bounds_+(u64)i*k_max_);
+        blocks_.push_back(block);
+    }
+}
+
+// -----------------------------------------------------------------------------
+void H2_Simpfer::blocking_item_set( // split the rest item_set into blocks
     int   n,                            // item cardinality
     const float *item_norms,            // item l2-norms
     const float *item_set)              // item set
@@ -142,7 +165,7 @@ void H2_LOWB::blocking_item_set(    // split the rest item_set into blocks
 }
 
 // -----------------------------------------------------------------------------
-void H2_LOWB::add_block_by_items(   // add one block by items
+void H2_Simpfer::add_block_by_items(// add one block by items
     int   n,                            // number of items
     float M,                            // max l2-norm of items
     const float *norms,                 // l2-norm of items
@@ -185,7 +208,7 @@ void H2_LOWB::add_block_by_items(   // add one block by items
 }
 
 // -----------------------------------------------------------------------------
-H2_LOWB::~H2_LOWB()                 // destructor
+H2_Simpfer::~H2_Simpfer()                 // destructor
 {
     for (auto hash : hashs_) { delete hash; hash = nullptr; }
     std::vector<Item_Block*>().swap(hashs_);
@@ -194,19 +217,26 @@ H2_LOWB::~H2_LOWB()                 // destructor
     if (!item_norms_)   { delete[] item_norms_;   item_norms_   = nullptr; }
     if (!item_index_)   { delete[] item_index_;   item_index_   = nullptr; }
     
+    for (auto block : blocks_) { delete block; block = nullptr; }
+    std::vector<User_Block*>().swap(blocks_);
+    
+    if (!user_set_)     { delete[] user_set_;     user_set_     = nullptr; }
     if (!user_norms_)   { delete[] user_norms_;   user_norms_   = nullptr; }
+    if (!user_index_)   { delete[] user_index_;   user_index_   = nullptr; }
     if (!lower_bounds_) { delete[] lower_bounds_; lower_bounds_ = nullptr; }
 }
 
-// -----------------------------------------------------------------------------
-void H2_LOWB::display()             // display parameters
+// -------------------------------------------------------------------------
+void H2_Simpfer::display()             // display parameters
 {
-    printf("Parameters of H2_LOWB:\n");
+    printf("Parameters of H2_Simpfer:\n");
     printf("n             = %d\n",   n_);
     printf("m             = %d\n",   m_);
     printf("d             = %d\n",   d_);
     printf("k_max         = %d\n",   k_max_);
     printf("b             = %g\n",   b_);
+    printf("block_size    = %d\n",   block_size_);
+    printf("# user blocks = %d\n",   (int) blocks_.size());
     printf("# item blocks = %d\n\n", (int) hashs_.size());
     // for (int i = 0; i < hashs_.size(); ++i) {
     //     printf("%d (%g) ", hashs_[i]->n_, hashs_[i]->M_);
@@ -216,7 +246,71 @@ void H2_LOWB::display()             // display parameters
 }
 
 // -----------------------------------------------------------------------------
-void H2_LOWB::reverse_kmips(        // reverse k-mips
+void H2_Simpfer::reverse_kmips(     // reverse k-mips
+    int   k,                            // top k value
+    const float *query,                 // query vector
+    std::vector<int> &result)           // reverse k-mips result (return)
+{
+    gettimeofday(&g_start_time, nullptr);
+    std::vector<int>().swap(result);// clear space for result
+    assert(k > 0 && k <= k_max_);   // validate the range of k
+    
+    // compute l2-norm for query
+    float query_norm = sqrt(calc_inner_product(d_, query, query)); 
+    ++g_ip_count;
+    
+    // check user_set with blocks for batch pruning
+    float item_k_norm = item_norms_[k-1]; // k-th largest item norm
+    MaxK_Array *arr = new MaxK_Array(k);
+    
+    for (auto block : blocks_) {
+        // lemma 3: use block upper bound for pruning
+        float ub = query_norm * block->norms_[0];
+        if (ub < block->block_lower_bounds_[k-1]) continue;
+        
+        // get user statistics from this block
+        int   m = block->m_;
+        const int   *user_index   = block->index_;
+        const float *user_norms   = block->norms_;
+        const float *user_set     = block->users_;
+        const float *lower_bounds = block->lower_bounds_;
+        
+        for (int i = 0; i < m; ++i) {
+            // get the lower bound for this user
+            const float *lower_bound = lower_bounds + (u64) i*k_max_;
+            float user_norm = user_norms[i];
+            
+            // lemma 1: use user's lower_bound for pruning
+            const float *user = user_set + (u64) i*d_;
+            float ip = calc_inner_product(d_, query, user); ++g_ip_count;
+            if (ip < lower_bound[k-1]) continue; // No
+            
+            // lemma 2: use item upper bound for pruning
+            ub = user_norm * item_k_norm;
+            if (ip >= ub) { 
+                // add user id into the result of this query
+                result.push_back(user_index[i]); // Yes
+            }
+            else {
+                // init the top-k array from the lower bound of this user
+                arr->init(k, lower_bound);
+                arr->add(ip);
+                if (kmips(k, ip, user_norm, user, arr) == 1) {
+                    result.push_back(user_index[i]); // Yes
+                }
+            }
+        }
+    }
+    delete arr;
+    gettimeofday(&g_end_time, nullptr);
+    
+    double query_time = g_end_time.tv_sec - g_start_time.tv_sec + 
+        (g_end_time.tv_usec - g_start_time.tv_usec) / 1000000.0;
+    g_run_time += query_time;
+}
+
+// -----------------------------------------------------------------------------
+void H2_Simpfer::reverse_kmips_wo_user_blocks(// reverse k-mips without user blocks
     int   k,                            // top k value
     const float *query,                 // query vector
     std::vector<int> &result)           // reverse k-mips result (return)
@@ -247,14 +341,14 @@ void H2_LOWB::reverse_kmips(        // reverse k-mips
         float ub = user_norm * item_k_norm;
         if (ip >= ub) { 
             // add user id into the result of this query
-            result.push_back(i); // Yes
+            result.push_back(user_index_[i]); // Yes
         }
         else {
             // init the top-k array from the lower bound of this user
             arr->init(k, lower_bound);
             arr->add(ip);
             if (kmips(k, ip, user_norm, user, arr) == 1) {
-                result.push_back(i); // Yes
+                result.push_back(user_index_[i]); // Yes
             }
         }
     }
@@ -267,7 +361,7 @@ void H2_LOWB::reverse_kmips(        // reverse k-mips
 }
 
 // -----------------------------------------------------------------------------
-int H2_LOWB::kmips(                 // k-mips
+int H2_Simpfer::kmips(              // k-mips
     int   k,                            // top-k value
     float uq_ip,                        // inner product of user and query
     float user_norm,                    // l2-norm of input user
@@ -301,6 +395,10 @@ int H2_LOWB::kmips(                 // k-mips
             QALSH *lsh = hash->lsh_;
             float range  = sqrt(2.0f * (M*M - lambda*kip));
             lsh->knns(k, range, h2_user.data(), cand);
+
+            // // perform knns by srp-lsh
+            // SRP_LSH *srp = hash->srp_;
+            // srp->kmcss(k, h2_user.data(), cand);
             
             // verify the candidates
             for (int id : cand) {

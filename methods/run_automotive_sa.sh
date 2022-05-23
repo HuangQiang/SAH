@@ -3,13 +3,13 @@ make clean
 make -j
 
 # ------------------------------------------------------------------------------
-#  OptDigits
+#  Automotive
 # ------------------------------------------------------------------------------
-name=OptDigits
-n=3723
-m=1797
+name=Automotive
+n=925285
+m=3873247
 qn=100
-d=65
+d=100
 items=../data/${name}/${name}.items 
 users=../data/${name}/${name}.users 
 query=../data/${name}/${name}.query 

@@ -40,10 +40,10 @@ const f32 MINREAL          = -MAXREAL;
 const int MAXINT           = 2147483647;
 const int MININT           = -MAXINT;
 
-const int RANDOM_SEED      = 41; // 41 52 63 77 81
+const int RANDOM_SEED      = 41; // 5 random seeds: 41 52 63 77 81
 const std::vector<int> Ks  = { 1,5,10,20,30,40,50 };
 const int K_MAX            = 50;
-const int THREAD_NUM       = 48;
+const int THREAD_NUM       = 4;
 
 const int COEFF            = 4;    // H2_ALSH, SA_ALSH, SA_ALSH+
 const int BLOCK_MAX_NUM    = 10000;// H2_ALSH, SA_ALSH, SA_ALSH+
@@ -55,5 +55,3 @@ const f32 APPRX_RATIO_MIPS = 1.0f; // Approximation Ratio for MIPS (0,1]
 const f32 APPRX_RATIO_NNS  = 2.0f; // Approximation Ratio for NNS  [1,+\infty)
 
 } // end namespace ip
-
-

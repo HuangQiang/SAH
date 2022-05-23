@@ -1,12 +1,11 @@
 # ------------------------------------------------------------------------------
 #  Makefile
 # ------------------------------------------------------------------------------
-OBJS=pri_queue.o util.o qalsh.o srp_lsh.o ball_tree.o cone_tree.o block.o \
-	baseline.o h2_alsh.o h2_lowb.o h2_plus.o sa_alsh.o sa_ball.o sa_cone.o \
-	armips.o main.o
+OBJS=pri_queue.o util.o qalsh.o srp_lsh.o cone_tree.o block.o baseline.o \
+	h2_alsh.o h2_simpfer.o sa_simpfer.o sah.o armips.o main.o
 
-CXX=g++ -std=c++17
-# CXX=g++-8 -std=c++17
+# CXX=g++ -std=c++17
+CXX=g++-8 -std=c++17
 OMP=-fopenmp -lpthread
 OPT=-w -O3
 
