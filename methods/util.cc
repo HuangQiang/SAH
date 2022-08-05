@@ -187,6 +187,18 @@ void write_params(                  // write parameters
 }
 
 // -----------------------------------------------------------------------------
+void write_params_leaf(             // write parameters
+    int   leaf,                         // leaf size of Cone-Tree
+    float b,                            // interval ratio for blocking items
+    const char *method_name,            // method name
+    FILE  *fp)                          // file pointer (return)
+{
+    fprintf(fp, "seed=%d, leaf=%d, b=%g\n", RANDOM_SEED, leaf, b);
+    printf("seed=%d, leaf=%d, b=%g\n", RANDOM_SEED, leaf, b);
+    head(method_name);
+}
+
+// -----------------------------------------------------------------------------
 void write_params(                  // write parameters
     int   K,                            // # hash tables for SRP-LSH
     int   leaf,                         // leaf size of Cone-Tree
@@ -370,13 +382,6 @@ float calc_l2_sqr(                  // calc l_2 distance square
 }
 
 // -----------------------------------------------------------------------------
-float calc_l2_sqr(                  // calc l_2 distance square
-    int   dim,                          // dimension
-    float threshold,                    // threshold
-    const float *p1,                    // 1st point
-    const float *p2);                   // 2nd point
-
-// -----------------------------------------------------------------------------
 float calc_l2_dist(                 // calc l_2 distance
     int   dim,                          // dimensionality
     const float *p1,                    // 1st point
@@ -478,6 +483,39 @@ float shift_data_and_norms(         // calc shifted data and their l2-norm sqrs
         if (max_norm_sqr < norm) max_norm_sqr = norm;
     }
     return max_norm_sqr;
+}
+
+// -----------------------------------------------------------------------------
+void linear_scan(                   // linear scan user_set for k-mips
+    int   m,                            // number of user vectors
+    int   k,                            // top-k value
+    int   d,                            // dimensionality
+    const float *query,                 // query vector
+    const float *user_set,              // user vectors
+    std::vector<int> &result)           // top-k results (return)
+{
+    gettimeofday(&g_start_time, nullptr);
+    std::vector<int>().swap(result);// clear space for result
+    
+    // find top-k mips results from user_set
+    MaxK_List *list = new MaxK_List(k);
+    for (int j = 0; j < m; ++j) {
+        const float *user = user_set + (u64) j*d;
+        float ip = calc_inner_product(d, user, query);
+        ++g_ip_count;
+        
+        list->insert(ip, j);
+    }
+    // copy the user ids to results
+    result.resize(k);
+    for (int i = 0; i < k; ++i) result[i] = list->ith_id(i);
+    
+    delete list;
+    gettimeofday(&g_end_time, nullptr);
+    
+    double query_time = g_end_time.tv_sec - g_start_time.tv_sec + 
+        (g_end_time.tv_usec - g_start_time.tv_usec) / 1000000.0;
+    g_run_time += query_time;
 }
 
 } // end namespace ip

@@ -3,7 +3,7 @@ import sys
 
 import matplotlib.pyplot as plt
 
-datasets = ['Amazon-Auto', 'Amazon-CDs', 'MovieLens', 'Music100', 'Netflix']
+datasets = ['Amazon-Auto', 'Amazon-Books', 'Amazon-CDs', r'Amazon-Movie\&TV', 'Amazon-Tools', 'MovieLens', 'Music100', 'Netflix']
 algorithms = ['Simpfer', 'H2-Simpfer', 'SAH', 'H2-ALSH']
 markers = ['s', 'o', '^', 'x']
 colors = ['forestgreen', 'blue', 'red', 'black']
@@ -99,32 +99,53 @@ if __name__ == "__main__":
     print(datasets[0], 'Simpfer', r1_min, r1_max)
     print(datasets[0], 'H2P', r2_min, r2_max)
     print(datasets[0], min_t, max_t)
-    draw_time_k(datasets[0], t, 1e1, 1.5e5)
-    
+    # draw_time_k(datasets[0], t, 1e1, 1.5e5)
+
+    t, min_t, max_t = read_csv_time("results/Books/varying_k.tsv")
+    r1_min, r1_max, r2_min, r2_max = calc_speedups(t)
+    print(datasets[1], 'Simpfer', r1_min, r1_max)
+    print(datasets[1], 'H2P', r2_min, r2_max)
+    print(datasets[1], min_t, max_t)
+    # draw_time_k(datasets[1], t, 1e1, 1e5)
+
     t, min_t, max_t = read_csv_time("results/CDs/varying_k.tsv")
     r1_min, r1_max, r2_min, r2_max = calc_speedups(t)
     print(datasets[2], 'Simpfer', r1_min, r1_max)
     print(datasets[2], 'H2P', r2_min, r2_max)
     print(datasets[2], min_t, max_t)
     draw_time_k(datasets[2], t, 1, 1e4)
-    
+
+    t, min_t, max_t = read_csv_time("results/Movies_and_TV/varying_k.tsv")
+    r1_min, r1_max, r2_min, r2_max = calc_speedups(t)
+    print(datasets[3], 'Simpfer', r1_min, r1_max)
+    print(datasets[3], 'H2P', r2_min, r2_max)
+    print(datasets[3], min_t, max_t)
+    # draw_time_k(datasets[3], t, 0.8, 1e4)
+
+    t, min_t, max_t = read_csv_time("results/Tools/varying_k.tsv")
+    r1_min, r1_max, r2_min, r2_max = calc_speedups(t)
+    print(datasets[4], 'Simpfer', r1_min, r1_max)
+    print(datasets[4], 'H2P', r2_min, r2_max)
+    print(datasets[4], min_t, max_t)
+    # draw_time_k(datasets[4], t, 7, 1.5e5)
+
     t, min_t, max_t = read_csv_time("results/MovieLens/varying_k.tsv")
     r1_min, r1_max, r2_min, r2_max = calc_speedups(t)
     print(datasets[5], 'Simpfer', r1_min, r1_max)
     print(datasets[5], 'H2P', r2_min, r2_max)
     print(datasets[5], min_t, max_t)
-    draw_time_k(datasets[5], t, 0.08, 1e3)
-    
+    # draw_time_k(datasets[5], t, 0.08, 1e3)
+
     t, min_t, max_t = read_csv_time("results/Music100/varying_k.tsv")
     r1_min, r1_max, r2_min, r2_max = calc_speedups(t)
     print(datasets[6], 'Simpfer', r1_min, r1_max)
     print(datasets[6], 'H2P', r2_min, r2_max)
     print(datasets[6], min_t, max_t)
-    draw_time_k(datasets[6], t, 1e2, 1e6)
+    # draw_time_k(datasets[6], t, 1e2, 1e6)
 
     t, min_t, max_t = read_csv_time("results/Netflix/varying_k.tsv")
     r1_min, r1_max, r2_min, r2_max = calc_speedups(t)
     print(datasets[7], 'Simpfer', r1_min, r1_max)
     print(datasets[7], 'H2P', r2_min, r2_max)
     print(datasets[7], min_t, max_t)
-    draw_time_k(datasets[7], t, 0.8, 1e4)
+    # draw_time_k(datasets[7], t, 0.8, 1e4)

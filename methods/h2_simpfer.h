@@ -52,12 +52,6 @@ public:
         std::vector<int> &result);      // reverse k-mips result (return)
     
     // -------------------------------------------------------------------------
-    void reverse_kmips_wo_user_blocks(// reverse k-mips without user blocks
-        int   k,                        // top k value
-        const float *query,             // query vector
-        std::vector<int> &result);      // reverse k-mips result (return)
-    
-    // -------------------------------------------------------------------------
     u64 get_estimated_memory() {    // get memory usage
         u64 ret = 0;
         ret += sizeof(*this);

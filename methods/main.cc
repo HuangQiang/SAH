@@ -8,6 +8,8 @@
 
 #include "def.h"
 #include "util.h"
+#include "baseline.h"
+#include "cone_tree.h"
 #include "armips.h"
 
 using namespace ip;
@@ -17,7 +19,7 @@ void usage()                        // display the usage
 {
     printf("\n"
         "-------------------------------------------------------------------\n"
-        " The Parameters for Reverse k-Maximum Inner Product Search         \n"
+        " Parameters for Reverse k-Maximum Inner Product Search (RkMIPS)    \n"
         "-------------------------------------------------------------------\n"
         " -alg   {integer}  options of algorithms\n"
         " -n     {integer}  item  cardinality\n"
@@ -25,7 +27,7 @@ void usage()                        // display the usage
         " -qn    {integer}  query cardinality\n"
         " -d     {integer}  dimensionality\n"
         " -K     {integer}  # hash tables for SRP-LSH\n"
-        " -l     {integer}  leaf size for Cone-Tree\n"
+        " -l     {integer}  leaf size for Cone-Tree/Ball-Tree\n"
         " -b     {real}     interval ratio for H2-ALSH & SA-ALSH\n"
         " -is    {string}   address of item  set\n"
         " -us    {string}   address of user  set\n"
@@ -39,22 +41,72 @@ void usage()                        // display the usage
         " 0  - Ground Truth & Histogram & Heatmap\n"
         "      Param: -alg 0 -n -m -qn -d -is -us -qs -ts -of\n"
         "\n"
-        " 1  - H2_ALSH\n"
-        "      Param: -alg 1 -n -m -qn -d -b -is -us -qs -ts -of\n"
+        " 1  - Exhaustive_Scan\n"
+        "      Param: -alg 1 -n -m -qn -d -is -us -qs -ts -of\n"
         "\n"
-        " 2  - H2_Simpfer\n"
-        "      Param: -alg 2 -n -m -qn -d -b -is -us -qs -ts -of\n"
+        " 2  - SA_Simpfer (SA-ALSH + Simpfer)\n"
+        "      Param: -alg 2 -n -m -qn -d -K -b -is -us -qs -ts -of\n"
         "\n"
-        " 3  - SA_Simpfer\n"
-        "      Param: -alg 3 -n -m -qn -d -K -b -is -us -qs -ts -of\n"
+        " 3  - SA_Cone (SA-ALSH + Cone-Tree Blocking)\n"
+        "      Param: -alg 3 -n -m -qn -d -K -l -b -is -us -qs -ts -of\n"
         "\n"
-        " 4  - SAH\n"
-        "      Param: -alg 4 -n -m -qn -d -K -l -b -is -us -qs -ts -of\n"
+        " 4  - H2_ALSH\n"
+        "      Param: -alg 4 -n -m -qn -d -b -is -us -qs -ts -of\n"
+        "\n"
+        " 5  - H2_Simpfer (H2-ALSH + Simpfer)\n"
+        "      Param: -alg 5 -n -m -qn -d -b -is -us -qs -ts -of\n"
+        "\n"
+        " 6  - H2_Cone (H2-ALSH + Cone-Tree Blocking)\n"
+        "      Param: -alg 6 -n -m -qn -d -l -b -is -us -qs -ts -of\n"
+        "\n"
+        " 7  - Linear Scan User Set\n"
+        "      Param: -alg 7 -n -m -qn -d -is -us -qs -ts -of\n"
         "\n"
         "-------------------------------------------------------------------\n"
-        " Anonymous Author(s)                                               \n"
+        " Author: Qiang Huang (huangq@comp.nus.edu.sg)                      \n"
         "-------------------------------------------------------------------\n"
         "\n\n\n");
+}
+
+// -----------------------------------------------------------------------------
+void unit_test(                     // unit test Scan and Cone_Tree
+    int   n,                            // item  cardinality
+    int   m,                            // user  cardinality
+    int   d,                            // dimensionality
+    const float *item_set,              // set of item vectors
+    const float *user_set)              // set of user vectors
+{
+    int k_max = 20;
+    int num_q = 10;
+    
+    omp_set_num_threads(4);
+    #pragma omp parallel
+    {
+        int id = omp_get_thread_num();
+        printf("Hello (%d) ",    id);
+        printf("World (%d)\n\n", id );
+    }
+    
+    Scan *scan1 = new Scan(n, m, d, k_max, true, item_set, user_set);
+    for (int i = 0; i < num_q; ++i) {
+        float *k_bound = scan1->k_bounds_ + (u64) i*k_max;
+        
+        for (int j = 0; j < k_max; ++j) printf("%g ", k_bound[j]);
+        printf("\n");
+    }
+    printf("\n");
+    
+    Scan *scan2 = new Scan(n, m, d, k_max, false, item_set, user_set);
+    for (int i = 0; i < num_q; ++i) {
+        float *k_bound = scan2->k_bounds_ + (u64) i*k_max;
+        
+        for (int j = 0; j < k_max; ++j) printf("%g ", k_bound[j]);
+        printf("\n");
+    }
+    printf("\n");
+    
+    delete scan1;
+    delete scan2;
 }
 
 // -----------------------------------------------------------------------------
@@ -157,6 +209,8 @@ int main(int nargs, char **args)
         (g_end_time.tv_usec - g_start_time.tv_usec) / 1000000.0;
     printf("Read items, users, & queries: %g Seconds\n\n", input_time);
     
+    // unit_test(n, m, d, item_set, user_set);
+    
     // -------------------------------------------------------------------------
     //  methods
     // -------------------------------------------------------------------------
@@ -166,24 +220,38 @@ int main(int nargs, char **args)
             (const float*) user_set, (const float*) query_set);
         break;
     case 1:
-        h2_alsh(n, m, qn, d, b, "h2_alsh", truth_addr, out_folder, 
+        exhaustive_scan(n, m, qn, d, "exhaustive_scan", truth_addr, out_folder, 
             (const float*) item_set, (const float*) user_set, 
             (const float*) query_set);
         break;
     case 2:
-        h2_simpfer(n, m, qn, d, b, "h2_simpfer", truth_addr, out_folder, 
-            (const float*) item_set, (const float*) user_set, 
-            (const float*) query_set);
-        break;
-    case 3:
         sa_simpfer(n, m, qn, d, K, b, "sa_simpfer", truth_addr, out_folder, 
             (const float*) item_set, (const float*) user_set, 
             (const float*) query_set);
         break;
-    case 4:
-        sah(n, m, qn, d, K, leaf, b, "sah", truth_addr, out_folder, 
+    case 3:
+        sa_cone(n, m, qn, d, K, leaf, b, "sa_cone", truth_addr, out_folder, 
             (const float*) item_set, (const float*) user_set, 
             (const float*) query_set);
+        break;
+    case 4:
+        h2_alsh(n, m, qn, d, b, "h2_alsh", truth_addr, out_folder, 
+            (const float*) item_set, (const float*) user_set, 
+            (const float*) query_set);
+        break;
+    case 5:
+        h2_simpfer(n, m, qn, d, b, "h2_simpfer", truth_addr, out_folder, 
+            (const float*) item_set, (const float*) user_set, 
+            (const float*) query_set);
+        break;
+    case 6:
+        h2_cone(n, m, qn, d, leaf, b, "h2_cone", truth_addr, out_folder, 
+            (const float*) item_set, (const float*) user_set, 
+            (const float*) query_set);
+        break;
+    case 7:
+        linear(m, qn, d, "linear", truth_addr, out_folder, 
+            (const float*) user_set, (const float*) query_set);
         break;
     default:
         printf("Parameters error!\n"); usage();

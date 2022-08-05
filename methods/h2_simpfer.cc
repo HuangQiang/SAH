@@ -201,6 +201,28 @@ void H2_Simpfer::add_block_by_items(// add one block by items
             Result *table = tables + (u64) j*n;
             qsort(table, n, sizeof(Result), ResultComp);
         }
+        
+        // // build hash tables for srp-lsh
+        // block->srp_ = new SRP_LSH(n, d_+1, K_);
+        
+        // SRP_LSH *srp = block->srp_;
+        // bool *hash_code = new bool[K_];
+        // u64  *hash_keys = srp->hash_keys_;
+        // int  m = srp->m_;
+        // for (int i = 0; i < n; ++i) {
+        //     // construct new format of data by qnf transformation
+        //     const float *item = items + (u64) i*d_;
+        //     std::copy(item, item+d_, h2_item);
+        //     h2_item[d_] = sqrt(M_sqr - SQR(norms[i]));
+            
+        //     // calc hash value for new format of data
+        //     for (int j = 0; j < K_; ++j) {
+        //         hash_code[j] = srp->calc_hash_code(j, h2_item);
+        //     }
+        //     srp->compress_hash_code(hash_code, hash_keys + (u64)i*m);
+        // }
+        // delete[] hash_code;
+        
         delete[] h2_item;
     }
     // add this block
@@ -208,7 +230,7 @@ void H2_Simpfer::add_block_by_items(// add one block by items
 }
 
 // -----------------------------------------------------------------------------
-H2_Simpfer::~H2_Simpfer()                 // destructor
+H2_Simpfer::~H2_Simpfer()           // destructor
 {
     for (auto hash : hashs_) { delete hash; hash = nullptr; }
     std::vector<Item_Block*>().swap(hashs_);
@@ -227,7 +249,7 @@ H2_Simpfer::~H2_Simpfer()                 // destructor
 }
 
 // -------------------------------------------------------------------------
-void H2_Simpfer::display()             // display parameters
+void H2_Simpfer::display()          // display parameters
 {
     printf("Parameters of H2_Simpfer:\n");
     printf("n             = %d\n",   n_);
@@ -310,57 +332,6 @@ void H2_Simpfer::reverse_kmips(     // reverse k-mips
 }
 
 // -----------------------------------------------------------------------------
-void H2_Simpfer::reverse_kmips_wo_user_blocks(// reverse k-mips without user blocks
-    int   k,                            // top k value
-    const float *query,                 // query vector
-    std::vector<int> &result)           // reverse k-mips result (return)
-{
-    gettimeofday(&g_start_time, nullptr);
-    std::vector<int>().swap(result);// clear space for result
-    assert(k > 0 && k <= k_max_);   // validate the range of k
-    
-    // compute l2-norm for query
-    float query_norm = sqrt(calc_inner_product(d_, query, query)); 
-    ++g_ip_count;
-    
-    // check each user in user_set
-    float item_k_norm = item_norms_[k-1]; // k-th largest item norm
-    MaxK_Array *arr = new MaxK_Array(k);
-    
-    for (int i = 0; i < m_; ++i) {
-        // get the lower bound for this user
-        float *lower_bound = lower_bounds_ + (u64) i*k_max_;
-        float user_norm = user_norms_[i];
-        
-        // lemma 1: use user's lower_bound for pruning
-        const float *user = user_set_ + (u64) i*d_;
-        float ip = calc_inner_product(d_, query, user); ++g_ip_count;
-        if (ip < lower_bound[k-1]) continue; // No
-        
-        // lemma 2: use item upper bound for pruning
-        float ub = user_norm * item_k_norm;
-        if (ip >= ub) { 
-            // add user id into the result of this query
-            result.push_back(user_index_[i]); // Yes
-        }
-        else {
-            // init the top-k array from the lower bound of this user
-            arr->init(k, lower_bound);
-            arr->add(ip);
-            if (kmips(k, ip, user_norm, user, arr) == 1) {
-                result.push_back(user_index_[i]); // Yes
-            }
-        }
-    }
-    delete arr;
-    gettimeofday(&g_end_time, nullptr);
-    
-    double query_time = g_end_time.tv_sec - g_start_time.tv_sec + 
-        (g_end_time.tv_usec - g_start_time.tv_usec) / 1000000.0;
-    g_run_time += query_time;
-}
-
-// -----------------------------------------------------------------------------
 int H2_Simpfer::kmips(              // k-mips
     int   k,                            // top-k value
     float uq_ip,                        // inner product of user and query
@@ -393,7 +364,7 @@ int H2_Simpfer::kmips(              // k-mips
             
             // perform knns by qalsh
             QALSH *lsh = hash->lsh_;
-            float range  = sqrt(2.0f * (M*M - lambda*kip));
+            float range = sqrt(2.0f * (M*M - lambda*kip));
             lsh->knns(k, range, h2_user.data(), cand);
 
             // // perform knns by srp-lsh

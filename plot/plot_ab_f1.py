@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 
 datasets = ['Amazon-Auto', 'Amazon-CDs', 'MovieLens', 'Music100', 'Netflix']
-algorithms = ['H2-Simpfer', 'SA-Simpfer', 'SAH']
-markers = ['o', '^', '.']
-colors = ['blue', 'red', 'purple']
+algorithms = ['H2-Simpfer', 'H2-Cone', 'SA-Simpfer', 'SAH']
+markers = ['o', '^', '.', 'D']
+colors = ['blue', 'red', 'purple', 'darkorange']
 
 k_vals = [1, 5, 10, 20, 30, 40, 50]
 
@@ -22,7 +22,7 @@ plt.rcParams.update({
 def read_csv_f1(fname):
     min_f1 = 100
     f1_scores = {}
-    for alg in ['SAP', 'H2P', 'SAH']:
+    for alg in ['SAP', 'H2P', 'SAH', 'H2C']:
         f1_scores[alg] = []
     with open(fname, newline='') as f:
         reader = csv.reader(f, delimiter='\t')
@@ -56,6 +56,7 @@ def draw_f1_a(dataset, f1_scores, y_min, y_max, y_interval):
 
     ax.plot(k_vals, f1_scores['H2P'], color=colors[0], linewidth=1.5, fillstyle='none', marker=markers[0], ms=7.5, mew=1.5)
     ax.plot(k_vals, f1_scores['SAP'], color=colors[2], linewidth=1.5, marker=markers[2], ms=9, mew=1.5)
+    ax.plot(k_vals, f1_scores['H2C'], color=colors[3], linewidth=1.5, fillstyle='none', marker=markers[3], ms=7.5, mew=1.5)
     ax.plot(k_vals, f1_scores['SAH'], color=colors[1], linewidth=1.5, fillstyle='none', marker=markers[1], ms=7.5, mew=1.5)
 
     figs.tight_layout(rect=[0.135, 0.06, 1, 0.98])
@@ -82,7 +83,7 @@ if __name__ == "__main__":
 
     t, min_t = read_csv_f1("results/Music100/ablation.tsv")
     print(datasets[3], min_t)
-    draw_f1_a(datasets[3], t, 85, 101, 3)
+    draw_f1_a(datasets[3], t, 80, 101, 4)
 
     t, min_t = read_csv_f1("results/Netflix/ablation.tsv")
     print(datasets[4], min_t)

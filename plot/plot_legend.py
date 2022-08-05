@@ -8,9 +8,10 @@ plt.rcParams.update({
     "text.latex.preamble": r"\usepackage{arev}",
     "font.sans-serif": ["Helvetica"]})
 
-algorithms = ['H2-ALSH', 'H2-Simpfer', 'SAH', 'Simpfer', 'SA-Simpfer']
-markers = ['x', 'o', '^', 's', '.']
-colors = ['black', 'blue', 'red', 'forestgreen', 'purple']
+algorithms = ['H2-ALSH', 'H2-Simpfer', 'SAH', 'Simpfer', 'SA-Simpfer', 'H2-Cone']
+mips_algorithms = ['H2-ALSH', 'SA-ALSH']
+markers = ['x', 'o', '^', 's', '.', 'D']
+colors = ['black', 'blue', 'red', 'forestgreen', 'purple', 'darkorange']
 
 
 def draw_legend_4():
@@ -80,16 +81,19 @@ def draw_legend_3():
 def draw_legend_a():
     figs, ax = plt.subplots()
     stats = [0]
-    x_labels = [algorithms[1], algorithms[4], algorithms[2]]
+    x_labels = [algorithms[1], algorithms[5], algorithms[4], algorithms[2]]
 
     lines = []
-    for i in [1, 2]:
-        line = Line2D(range(1), stats, color=colors[i], linewidth=1.5, fillstyle='none', marker=markers[i], ms=10, mew=1.5)
-        lines.append(line)
+    line = Line2D(range(1), stats, color=colors[1], linewidth=1.5, fillstyle='none', marker=markers[1], ms=10, mew=1.5)
+    lines.append(line)
+    line = Line2D(range(1), stats, color=colors[5], linewidth=1.5, fillstyle='none', marker=markers[5], ms=10, mew=1.5)
+    lines.append(line)
     line = Line2D(range(1), stats, color=colors[4], linewidth=1.5, marker=markers[4], ms=12.5, mew=1.5)
     lines.append(line)
+    line = Line2D(range(1), stats, color=colors[2], linewidth=1.5, fillstyle='none', marker=markers[2], ms=10, mew=1.5)
+    lines.append(line)
 
-    leg = plt.figlegend([lines[0], lines[2], lines[1]], x_labels, loc='upper center', ncol=3, columnspacing=1.0, handlelength=2.5)
+    leg = plt.figlegend(lines, x_labels, loc='upper center', ncol=4, columnspacing=1.0, handlelength=2.5)
     leg.get_frame().set_linewidth(0.0)
 
     figs.tight_layout()
@@ -100,7 +104,29 @@ def draw_legend_a():
     plt.savefig('../figures/legend-a.pdf', format='pdf')
 
 
+def draw_legend_mips():
+    figs, ax = plt.subplots()
+    stats = [0]
+    x_labels = mips_algorithms
+
+    lines = []
+    for i in range(1, 3):
+        line = Line2D(range(1), stats, color=colors[i], linewidth=1.5, fillstyle='none', marker=markers[i], ms=10, mew=1.5)
+        lines.append(line)
+
+    leg = plt.figlegend(lines, x_labels, loc='upper center', ncol=2, columnspacing=1.0, handlelength=2.5)
+    leg.get_frame().set_linewidth(0.0)
+
+    figs.tight_layout()
+    figs.set_figheight(5)
+    figs.set_figwidth(12.5)
+
+    plt.subplots_adjust(top=0.7)
+    plt.savefig('../figures/legend-mips.pdf', format='pdf')
+
+
 if __name__ == "__main__":
-    draw_legend_a()
+    # draw_legend_a()
     # draw_legend_4()
     # draw_legend_bar()
+    draw_legend_mips()

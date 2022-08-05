@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 from matplotlib.ticker import AutoMinorLocator
 
-datasets = ['Amazon-Auto', 'Amazon-CDs', 'MovieLens', 'Music100', 'Netflix']
+datasets = ['Amazon-Auto', 'Amazon-Books', 'Amazon-CDs', r'Amazon-Movie\&TV', 'Amazon-Tools', 'MovieLens', 'Music100', 'Netflix']
 algorithms = ['SF+H2', 'SAH']
 colors = ['blue', 'red']
 
@@ -85,19 +85,31 @@ if __name__ == "__main__":
     t, min_t, max_t = read_csv_time("results/Automotive/varying_b_k%s.tsv" % k)
     print(min_t, max_t)
     # draw_time_b(datasets[0], t, k, 0, 1000, 200)
-    
+
+    t, min_t, max_t = read_csv_time("results/Books/varying_b_k%s.tsv" % k)
+    print(min_t, max_t)
+    # draw_time_b(datasets[1], t, k, 0, 3000, 500)
+
     t, min_t, max_t = read_csv_time("results/CDs/varying_b_k%s.tsv" % k)
     print(min_t, max_t)
     draw_time_b(datasets[2], t, k, 0, 420, 100)
-    
+
+    t, min_t, max_t = read_csv_time("results/Movies_and_TV/varying_b_k%s.tsv" % k)
+    print(min_t, max_t)
+    # draw_time_b(datasets[3], t, k, 0, 300, 50)
+
+    t, min_t, max_t = read_csv_time("results/Tools/varying_b_k%s.tsv" % k)
+    print(min_t, max_t)
+    # draw_time_b(datasets[4], t, k, 0, 700, 200)
+
     t, min_t, max_t = read_csv_time("results/MovieLens/varying_b_k%s.tsv" % k)
     print(min_t, max_t)
     # draw_time_b(datasets[5], t, k, 0, 3.2, 1)
-    
+
     t, min_t, max_t = read_csv_time("results/Music100/varying_b_k%s.tsv" % k)
     print(min_t, max_t)
     # draw_time_b(datasets[6], t, k, 0, 22000, 5000)
-    
+
     t, min_t, max_t = read_csv_time("results/Netflix/varying_b_k%s.tsv" % k)
     print(min_t, max_t)
     # draw_time_b(datasets[7], t, k, 0, 27, 5)

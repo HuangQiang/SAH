@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 
-datasets = ['Amazon-Auto', 'Amazon-CDs', 'MovieLens', 'Music100', 'Netflix']
+datasets = ['Amazon-Auto', 'Amazon-Books', 'Amazon-CDs', r'Amazon-Movie\&TV', 'Amazon-Tools', 'MovieLens', 'Music100', 'Netflix']
 algorithms = ['SF+H2', 'SAH']
 colors = ['blue', 'red']
 
@@ -66,27 +66,40 @@ def draw_f1_b(dataset, f1_scores, k, min_f1):
     ax.set_yticks(range(int(y_min), 101, interval))
     ax.set_ylim(y_min, 100)
     ax.yaxis.set_minor_locator(AutoMinorLocator())
-    
+
     ax.bar(xs - width / 2 - space, f1_scores['H2P'], width, color=colors[0])
     ax.bar(xs + width / 2 + space, f1_scores['SAH'], width, color=colors[1])
-    
+
     figs.tight_layout(rect=[0.135, 0.06, 1, 0.98])
     figs.set_figheight(2.4)
     figs.set_figwidth(2.4)
-    
+
     plt.savefig('../figures/%s_b_k%s_f1.pdf' % (dataset, k), format='pdf')
+    # plt.savefig('../figures/Amazon-Movie_b_k%s_f1.pdf' % k, format='pdf')
 
 
 if __name__ == "__main__":
     k = 10
     t, min_t = read_csv_f1("results/Automotive/varying_b_k%s.tsv" % k)
     print(min_t)
-    draw_f1_b(datasets[0], t, k, min_t)
-    
+    # draw_f1_b(datasets[0], t, k, min_t)
+
+    t, min_t = read_csv_f1("results/Books/varying_b_k%s.tsv" % k)
+    print(min_t)
+    # draw_f1_b(datasets[1], t, k, min_t)
+
     t, min_t = read_csv_f1("results/CDs/varying_b_k%s.tsv" % k)
     print(min_t)
     draw_f1_b(datasets[2], t, k, min_t)
-    
+
+    t, min_t = read_csv_f1("results/Movies_and_TV/varying_b_k%s.tsv" % k)
+    print(min_t)
+    # draw_f1_b(datasets[3], t, k, min_t)
+
+    t, min_t = read_csv_f1("results/Tools/varying_b_k%s.tsv" % k)
+    print(min_t)
+    # draw_f1_b(datasets[4], t, k, min_t)
+
     t, min_t = read_csv_f1("results/MovieLens/varying_b_k%s.tsv" % k)
     print(min_t)
     # draw_f1_b(datasets[5], t, k, min_t)

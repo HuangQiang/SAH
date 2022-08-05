@@ -3,7 +3,7 @@ import sys
 
 import matplotlib.pyplot as plt
 
-datasets = ['Amazon-Auto', 'Amazon-CDs', 'MovieLens', 'Music100', 'Netflix']
+datasets = ['Amazon-Auto', 'Amazon-Books', 'Amazon-CDs', r'Amazon-Movie\&TV', 'Amazon-Tools', 'MovieLens', 'Music100', 'Netflix']
 algorithms = ['Simpfer', 'H2-Simpfer', 'SAH', 'H2-ALSH']
 markers = ['s', 'o', '^', 'x']
 colors = ['forestgreen', 'blue', 'red', 'black']
@@ -76,20 +76,32 @@ def draw_ip_k(dataset, ip_comps, y_min, y_max):
 if __name__ == "__main__":
     t, min_t, max_t = read_csv_ip("results/Automotive/varying_k.tsv")
     print(datasets[0], min_t, max_t)
-    draw_ip_k(datasets[0], t, 2e4, 4e8)
+    # draw_ip_k(datasets[0], t, 2e4, 4e8)
+
+    t, min_t, max_t = read_csv_ip("results/Books/varying_k.tsv")
+    print(datasets[1], min_t, max_t)
+    # draw_ip_k(datasets[1], t, 2e4, 1e8)
 
     t, min_t, max_t = read_csv_ip("results/CDs/varying_k.tsv")
     print(datasets[2], min_t, max_t)
     draw_ip_k(datasets[2], t, 8e3, 1e7)
 
+    t, min_t, max_t = read_csv_ip("results/Movies_and_TV/varying_k.tsv")
+    print(datasets[3], min_t, max_t)
+    # draw_ip_k(datasets[3], t, 1e3, 1.6e7)
+
+    t, min_t, max_t = read_csv_ip("results/Tools/varying_k.tsv")
+    print(datasets[4], min_t, max_t)
+    # draw_ip_k(datasets[4], t, 1e4, 5e8)
+
     t, min_t, max_t = read_csv_ip("results/MovieLens/varying_k.tsv")
     print(datasets[5], min_t, max_t)
-    draw_ip_k(datasets[5], t, 1e2, 6e6)
+    # draw_ip_k(datasets[5], t, 1e2, 6e6)
 
     t, min_t, max_t = read_csv_ip("results/Music100/varying_k.tsv")
     print(datasets[6], min_t, max_t)
-    draw_ip_k(datasets[6], t, 7e5, 4e8)
+    # draw_ip_k(datasets[6], t, 7e5, 4e8)
 
     t, min_t, max_t = read_csv_ip("results/Netflix/varying_k.tsv")
     print(datasets[7], min_t, max_t)
-    draw_ip_k(datasets[7], t, 1e3, 4e7)
+    # draw_ip_k(datasets[7], t, 1e3, 4e7)

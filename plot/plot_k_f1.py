@@ -4,7 +4,7 @@ import math
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 
-datasets = ['Amazon-Auto', 'Amazon-CDs', 'MovieLens', 'Music100', 'Netflix']
+datasets = ['Amazon-Auto', 'Amazon-Books', 'Amazon-CDs', r'Amazon-Movie\&TV', 'Amazon-Tools', 'MovieLens', 'Music100', 'Netflix']
 algorithms = ['Simpfer', 'H2-Simpfer', 'SAH', 'H2-ALSH']
 markers = ['s', 'o', '^', 'x']
 colors = ['forestgreen', 'blue', 'red', 'black']
@@ -75,20 +75,32 @@ def draw_f1_k(dataset, f1_scores, y_min, y_max, y_interval):
 if __name__ == "__main__":
     t, min_t = read_csv_f1("results/Automotive/varying_k.tsv")
     print(datasets[0], min_t)
-    draw_f1_k(datasets[0], t, 92, 100.5, 2)
-    
+    # draw_f1_k(datasets[0], t, 92, 100.5, 2)
+
+    t, min_t = read_csv_f1("results/Books/varying_k.tsv")
+    print(datasets[1], min_t)
+    # draw_f1_k(datasets[1], t, 80, 101, 5)
+
     t, min_t = read_csv_f1("results/CDs/varying_k.tsv")
     print(datasets[2], min_t)
     draw_f1_k(datasets[2], t, 60, 102, 10)
-    
+
+    t, min_t = read_csv_f1("results/Movies_and_TV/varying_k.tsv")
+    print(datasets[3], min_t)
+    # draw_f1_k(datasets[3], t, 80, 101, 5)
+
+    t, min_t = read_csv_f1("results/Tools/varying_k.tsv")
+    print(datasets[4], min_t)
+    # draw_f1_k(datasets[4], t, 75, 102, 5)
+
     t, min_t = read_csv_f1("results/MovieLens/varying_k.tsv")
     print(datasets[5], min_t)
-    draw_f1_k(datasets[5], t, 95, 100.3, 1)
+    # draw_f1_k(datasets[5], t, 95, 100.3, 1)
 
     t, min_t = read_csv_f1("results/Music100/varying_k.tsv")
     print(datasets[6], min_t)
-    draw_f1_k(datasets[6], t, 85, 101, 3)
+    # draw_f1_k(datasets[6], t, 85, 101, 3)
 
     t, min_t = read_csv_f1("results/Netflix/varying_k.tsv")
     print(datasets[7], min_t)
-    draw_f1_k(datasets[7], t, 95, 100.3, 1)
+    # draw_f1_k(datasets[7], t, 95, 100.3, 1)

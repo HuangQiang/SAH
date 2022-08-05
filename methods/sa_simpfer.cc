@@ -219,7 +219,7 @@ void SA_Simpfer::add_block_by_items(// add one block by items
 }
 
 // -----------------------------------------------------------------------------
-SA_Simpfer::~SA_Simpfer()              // destructor
+SA_Simpfer::~SA_Simpfer()           // destructor
 {
     for (auto hash : hashs_) { delete hash; hash = nullptr; }
     std::vector<Item_Block*>().swap(hashs_);
@@ -314,63 +314,6 @@ void SA_Simpfer::reverse_kmips(     // reverse k-mips
                 if (kmips(k, ip, user_norm, user, arr) == 1) {
                     result.push_back(user_index[i]); // Yes
                 }
-            }
-        }
-    }
-    delete arr;
-    gettimeofday(&g_end_time, nullptr);
-    
-    double query_time = g_end_time.tv_sec - g_start_time.tv_sec + 
-        (g_end_time.tv_usec - g_start_time.tv_usec) / 1000000.0;
-    g_run_time += query_time;
-}
-
-// -----------------------------------------------------------------------------
-void SA_Simpfer::reverse_kmips_wo_user_blocks(// reverse k-mips without user blocks
-    int   k,                            // top k value
-    const float *query,                 // query vector
-    std::vector<int> &result)           // reverse k-mips result (return)
-{
-    gettimeofday(&g_start_time, nullptr);
-    std::vector<int>().swap(result);// clear space for result
-    assert(k > 0 && k <= k_max_);   // validate the range of k
-    
-    // compute l2-norm for query
-    float query_norm = sqrt(calc_inner_product(d_, query, query)); 
-    ++g_ip_count;
-    
-    // check each user in user_set
-    float item_k_norm = item_norms_[k-1]; // k-th largest item norm
-    MaxK_Array *arr = new MaxK_Array(k);
-    
-    for (int i = 0; i < m_; ++i) {
-        // get the lower bound for this user
-        float *lower_bound = lower_bounds_ + (u64) i*k_max_;
-        float user_norm = user_norms_[i];
-        
-        // 1.1 as <q,u> <= |q|*|u|, use lower_buond for pruning (lemma 1*)
-        float ub = query_norm * user_norm;
-        if (ub < lower_bound[k-1]) continue; // No
-        
-        // 1.2 use lower_bound for pruning  (lemma 1)
-        const float *user = user_set_ + (u64) i*d_;
-        float ip = calc_inner_product(d_, query, user); ++g_ip_count;
-        if (ip < lower_bound[k-1]) continue; // No
-        
-        // 2. use item upper bound for pruning (lemma 2)
-        ub = user_norm * item_k_norm;
-        if (ip >= ub) { 
-            // add user id into the result of this query
-            result.push_back(user_index_[i]); // Yes
-        }
-        else {
-            // init the top-k array from the lower bound of this user
-            arr->init(k, lower_bound);
-            arr->add(ip);
-            
-            // kmips by sa-alsh
-            if (kmips(k, ip, user_norm, user, arr) == 1) {
-                result.push_back(user_index_[i]); // Yes
             }
         }
     }

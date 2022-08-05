@@ -94,6 +94,13 @@ void write_params(                  // write parameters
     FILE  *fp);                         // file pointer (return)
 
 // -----------------------------------------------------------------------------
+void write_params_leaf(             // write parameters
+    int   leaf,                         // leaf size of Cone-Tree
+    float b,                            // interval ratio for blocking items
+    const char *method_name,            // method name
+    FILE  *fp);                         // file pointer (return)
+
+// -----------------------------------------------------------------------------
 void write_params(                  // write parameters
     int   K,                            // # hash tables for SRP-LSH
     int   leaf,                         // leaf size of Cone-Tree
@@ -162,13 +169,6 @@ float calc_l2_sqr(                  // calc l_2 distance square
     const float *p2);                   // 2nd point
 
 // -----------------------------------------------------------------------------
-float calc_l2_sqr(                  // calc l_2 distance square
-    int   dim,                          // dimension
-    float threshold,                    // threshold
-    const float *p1,                    // 1st point
-    const float *p2);                   // 2nd point
-
-// -----------------------------------------------------------------------------
 float calc_l2_dist(                 // calc l_2 distance
     int   dim,                          // dimensionality
     const float *p1,                    // 1st point
@@ -215,5 +215,14 @@ float shift_data_and_norms(         // calc shifted data and their l2-norm sqrs
     const float *centroid,              // centroid
     float *shift_data,                  // shifted data vectors (return)
     float *shift_norms);                // shifted l2-norm sqrs (return)
+
+// -----------------------------------------------------------------------------
+void linear_scan(                   // linear scan user_set for k-mips
+    int m,                              // number of user vectors
+    int k,                              // top-k value
+    int d,                              // dimensionality
+    const float *query,                 // query vector
+    const float *user_set,              // user vectors
+    std::vector<int> &result);          // top-k results (return)
 
 } // end namespace ip

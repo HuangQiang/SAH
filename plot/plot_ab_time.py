@@ -4,9 +4,9 @@ import sys
 import matplotlib.pyplot as plt
 
 datasets = ['Amazon-Auto', 'Amazon-CDs', 'MovieLens', 'Music100', 'Netflix']
-algorithms = ['H2-Simpfer', 'SA-Simpfer', 'SAH']
-markers = ['o', '^', '.']
-colors = ['blue', 'red', 'purple']
+algorithms = ['H2-Simpfer', 'H2-Cone', 'SA-Simpfer', 'SAH']
+markers = ['o', '^', '.', 'D']
+colors = ['blue', 'red', 'purple', 'darkorange']
 
 k_vals = [1, 5, 10, 20, 30, 40, 50]
 
@@ -22,7 +22,7 @@ def read_csv_time(fname):
     min_time = sys.maxsize
     max_time = 0
     q_time = {}
-    for alg in ['SAP', 'H2P', 'SAH']:
+    for alg in ['SAP', 'H2P', 'SAH', 'H2C']:
         q_time[alg] = []
     with open(fname, newline='') as f:
         reader = csv.reader(f, delimiter='\t')
@@ -57,6 +57,7 @@ def draw_time_a(dataset, q_time, y_min, y_max):
 
     ax.plot(k_vals, q_time['H2P'], color=colors[0], linewidth=1.5, fillstyle='none', marker=markers[0], ms=7.5, mew=1.5)
     ax.plot(k_vals, q_time['SAP'], color=colors[2], linewidth=1.5, marker=markers[2], ms=9, mew=1.5)
+    ax.plot(k_vals, q_time['H2C'], color=colors[3], linewidth=1.5, fillstyle='none', marker=markers[3], ms=7.5, mew=1.5)
     ax.plot(k_vals, q_time['SAH'], color=colors[1], linewidth=1.5, fillstyle='none', marker=markers[1], ms=7.5, mew=1.5)
 
     if y_min < 1:

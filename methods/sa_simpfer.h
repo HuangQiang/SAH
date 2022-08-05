@@ -26,7 +26,7 @@ namespace ip {
 //  Online Query Phase:
 //  1. check user_set with blocks for batch pruning
 //  2. for each user, check item_set with blocks for batch pruning
-//  3. for each block in item_set, use srp-lsh/qalsh (with sa-trans) for speedup
+//  3. for each block in item_set, use srp-lsh (with sa-trans) for speedup
 // -----------------------------------------------------------------------------
 class SA_Simpfer {
 public:
@@ -48,12 +48,6 @@ public:
     
     // -------------------------------------------------------------------------
     void reverse_kmips(             // reverse k-mips
-        int   k,                        // top k value
-        const float *query,             // query vector
-        std::vector<int> &result);      // reverse k-mips result (return)
-    
-    // -------------------------------------------------------------------------
-    void reverse_kmips_wo_user_blocks(// reverse k-mips without user blocks
         int   k,                        // top k value
         const float *query,             // query vector
         std::vector<int> &result);      // reverse k-mips result (return)
