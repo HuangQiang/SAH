@@ -5,6 +5,7 @@ OBJS=pri_queue.o util.o qalsh.o srp_lsh.o block.o h2_alsh.o sa_alsh.o amips.o \
 	main.o
 
 CXX=g++ -std=c++17
+# CXX=g++-8 -std=c++17
 OPT=-w -O3
 
 # ------------------------------------------------------------------------------
