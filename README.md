@@ -12,7 +12,7 @@ This repository provides the implementations and experiments of our work entitle
 
 ### Dataset Details
 
-We use five real-world recommendation datasets in our experiments for perfroming R*k*MIPS, i.e., **Amazon-Auto**, **Amazon-CDs**, **MovieLens**, **Music100**, and **Netflix**. For the datasets Amazon-Auto, Amazon-CDs, MovieLens, and Netflix, we first retrieve their sparse user-item rating matrix $R$, where $R(i,j)$ is the rating of user $i$ for item $j$. Then, we set up the latent dimensionality $d=100$ and apply the [Non-Negative Matrix Factorization (NMF)](https://pytorch-nmf.readthedocs.io/en/stable/) on $R$ to obtain their latent user and item matrices. For the dataset [Music100](https://github.com/stanis-morozov/ip-nsw), as the authors only provided a single dense matrix (not rating matrix), we use it as both user and item matrices. Finally, for each dataset, we randomly select 100 item vectors from the item matrix and use them as the query set. The details of datasets are depicted in the following table.
+We use five real-world recommendation datasets in our experiments for performing R*k*MIPS, i.e., **Amazon-Auto**, **Amazon-CDs**, **MovieLens**, **Music100**, and **Netflix**. For the datasets Amazon-Auto, Amazon-CDs, MovieLens, and Netflix, we first retrieve their sparse user-item rating matrix $R$, where $R(i,j)$ is the rating of user $i$ for item $j$. Then, we set up the latent dimensionality $d=100$ and apply the [Non-Negative Matrix Factorization (NMF)](https://pytorch-nmf.readthedocs.io/en/stable/) on $R$ to obtain their latent user and item matrices. For the dataset [Music100](https://github.com/stanis-morozov/ip-nsw), as the authors only provided a single dense matrix (not rating matrix), we use it as both user and item matrices. Finally, we randomly select 100 item vectors from the item matrix for each dataset and use them as the query set. The details of the datasets are depicted in the following table.
 
 | Datasets    | # Items     | # Users   | # Queries | # Dim | Itemset Size | Userset Size |
 | ----------- | ----------- | --------- | --------- | ----- | ------------ | ------------ |
@@ -22,11 +22,11 @@ We use five real-world recommendation datasets in our experiments for perfroming
 | Music100    | 1,000,000   | 1,000,000 | 100       | 100   | 400.0 MB     | 400.0 MB     |
 | Netflix     | 17,770      | 480,189   | 100       | 100   | 7.1 MB       | 192.1 MB     |
 
-Moreover, we conduct a comparison of **H2-ALSH** and **SA-ALSH** for *k*MIPS. In addition to the five recommendation datasets used for perfroming R*k*MIPS, we we also choose five commonly used datasets to benchmark *k*MIPS algorithms, namely **DEEP**, **Gist**, **GloVe**, **ImageNet**, and **Msong**. The number of their vectors and the dimensionality $(n, d)$ are $(1,000,000, 256)$, $(982,694, 960)$, $(1,183,514, 100)$, $(2,340,373, 150)$, and $(992,272, 420)$, respectively. For the five recommendation datasets used in previous experiments, we use item vectors as the dataset and choose 100 user vectors uniformly at random as queries; for the five new datasets, we randomly draw 100 data vectors and remove them from the dataset as queries. All the datasets and queries can be download [here](https://drive.google.com/drive/folders/16tlJl4IE0Tcd4Dz9PXkhLt14MFhG67Zx?usp=sharing).
+Moreover, we conduct a comparison of **H2-ALSH** and **SA-ALSH** for *k*MIPS. In addition to the five recommendation datasets used for perfroming R*k*MIPS, we we also choose five commonly used datasets to benchmark *k*MIPS algorithms, namely **DEEP**, **Gist**, **GloVe**, **ImageNet**, and **Msong**. The number of their vectors and the dimensionality $(n, d)$ are $(1,000,000, 256)$, $(982,694, 960)$, $(1,183,514, 100)$, $(2,340,373, 150)$, and $(992,272, 420)$, respectively. For the five recommendation datasets used in previous experiments, we use item vectors as the dataset and choose 100 user vectors uniformly at random as queries; for the five new datasets, we randomly draw 100 data vectors and remove them from the dataset as queries. All the ten datasets and queries can be download [here](https://drive.google.com/drive/folders/16tlJl4IE0Tcd4Dz9PXkhLt14MFhG67Zx?usp=sharing).
 
 ### Data Format
 
-To reduce the I/O cost, all the datasets and queries are stored in a binary format. For a dataset (or query set) with *n* vectors in *d* dimensions, the binary file comparises with a `float` array of `n*d` length. You should know the cardinality *n* and data dimension *d* in advance.
+To reduce the I/O cost, all the datasets and queries are stored in a binary format. For a dataset (or query set) with *n* vectors in *d* dimensions, the binary file comparises with a `float` array of `n*d` length. Please specify the cardinality *n* and data dimension *d* in the bash scripts in advance.
 
 ## Requirements
 
@@ -81,7 +81,7 @@ cd kmips/
 bash run.sh
 ```
 
-### Expt-3: The Curve of Query Time vs. F1-Score
+### Expt-3: Efficiency-Accuracy Curve
 
 You can plot the curves of query time vs. f1-score for **H2-ALSH**, **H2-Simpfer**, and **SAH** by running the following commands:
 
@@ -99,7 +99,7 @@ Finally, we have privoded `python` scripts for visualization. These scripts requ
 Thank you so much for being patient to read the user manual. We will appreciate using the following BibTeX to cite this work when you use SAH in your paper.
 
 ```tex
-@inproceedings{huang2023a,
+@inproceedings{huang2023sah,
   title={SAH: Shifting-aware Asymmetric Hashing for Reverse k-Maximum Inner Product Search},
   author={Huang, Qiang and Wang, Yanhao and Tung, Anthony K. H.},
   booktitle={The Thirty-Seventh AAAI Conference on Artificial Intelligence (AAAI)},
@@ -107,4 +107,4 @@ Thank you so much for being patient to read the user manual. We will appreciate 
 }
 ```
 
-It is welcome to contact me (huangq@comp.nus.edu.sg) if you meet any issue. Thank you.
+It is welcome to contact me (huangq@comp.nus.edu.sg) or yanhao (yhwang@dase.ecnu.edu.cn) if you meet any issue. Thank you.
