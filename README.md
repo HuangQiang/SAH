@@ -2,11 +2,9 @@
 
 Welcome to the **SAH** GitHub!
 
-## Introduction
-
 **SAH** is a repository for the problem of **Reverse *k*-Maximum Inner Product Search (R*k*MIPS)**. Given a query (item) vector, a set of item vectors, and a set of user vectors, the problem of R*k*MIPS aims to find a set of user vectors whose inner products with the query vector are one of the *k* largest among the query and item vectors. This problem is essential for market analysis from a *reverse* perspective, i.e., the perspective of service providers instead of users. For example, when an e-commerce service promotes a discounted product or launches a new product, a vital issue for designing an effective advertising campaign is identifying the customers who may want to buy this product.
 
-This repository provides the implementations and experiments of our work entitled [SAH: Shifting-aware Asymmetric Hashing for Reverse *k*-Maximum Inner Product Search](~) in [AAAI 2023](~). We implement **SAH** for solving R*k*MIPS in high-dimensional Euclidean spaces and include the only known R*k*MIPS method [**Simpfer**](https://github.com/amgt-d1/Simpfer) and a state-of-the-art *k*-Maximum Inner Product Search (*k*MIPS) method [**H2-ALSH**](https://github.com/HuangQiang/H2_ALSH) as baselines for evaluation. To make a comprehensive yet systematic comparison, we also incorporate the R*k*MIPS optimizations of Simpfer into H2-ALSH and SA-ALSH as two new baselines named **H2-Simpfer** and **SA-Simpfer**, respectively.
+This repository provides the implementations and experiments of our work entitled SAH: Shifting-Aware Asymmetric Hashing for Reverse k Maximum Inner Product Search that has been published in [AAAI 2023](https://ojs.aaai.org/index.php/AAAI/article/view/25550). Our arXiv version can be found [here](https://arxiv.org/abs/2211.12751). We implement **SAH** for solving R*k*MIPS in high-dimensional Euclidean spaces and include the only known R*k*MIPS method [Simpfer](https://github.com/amgt-d1/Simpfer) and a state-of-the-art *k*-Maximum Inner Product Search (*k*MIPS) method [H2-ALSH](https://github.com/HuangQiang/H2_ALSH) as baselines for evaluation. To make a comprehensive yet systematic comparison, we also incorporate the R*k*MIPS optimizations of Simpfer into H2-ALSH and SA-ALSH as two new baselines named **H2-Simpfer** and **SA-Simpfer**, respectively.
 
 ## Datasets
 
@@ -98,13 +96,16 @@ Finally, we have privoded `python` scripts for visualization. These scripts requ
 
 Thank you so much for being patient to read the user manual. We will appreciate using the following BibTeX to cite this work when you use SAH in your paper.
 
-```tex
+```bibtex
 @inproceedings{huang2023sah,
-  title={SAH: Shifting-aware Asymmetric Hashing for Reverse k-Maximum Inner Product Search},
-  author={Huang, Qiang and Wang, Yanhao and Tung, Anthony K. H.},
-  booktitle={The Thirty-Seventh AAAI Conference on Artificial Intelligence (AAAI)},
+  title={SAH: Shifting-Aware Asymmetric Hashing for Reverse k Maximum Inner Product Search},
+  author={Huang, Qiang and Wang, Yanhao and Tung, Anthony KH},
+  booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
+  volume={37},
+  number={4},
+  pages={4312--4321},
   year={2023}
 }
 ```
 
-It is welcome to contact me (huangq@comp.nus.edu.sg) or yanhao (yhwang@dase.ecnu.edu.cn) if you meet any issue. Thank you.
+It is welcome to contact me (<huangq@comp.nus.edu.sg>) or yanhao (<yhwang@dase.ecnu.edu.cn>) if you meet any issue. Thank you.
